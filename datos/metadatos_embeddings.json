@@ -1,0 +1,13 @@
+{
+  "corpus_revision": "979c07a7cb5ccc6ca009792241fa1250b98055dd",
+  "modelo": "BAAI/bge-small-en-v1.5",
+  "revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+  "fragmento_palabras": 150,
+  "solapamiento": 30,
+  "consulta_sin_instruccion": true,
+  "pooling": "CLS",
+  "normalizacion": "L2",
+  "cantidad_fragmentos": 84238,
+  "dimension": 384,
+  "proveedor_onnx": "DmlExecutionProvider"
+}

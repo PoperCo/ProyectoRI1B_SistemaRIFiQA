@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FiQA · Búsqueda financiera</title>
+  <style>
+:root {
+  color-scheme: light;
+  --navy: #102638;
+  --navy-soft: #1d394c;
+  --teal: #087e83;
+  --teal-light: #e4f5f2;
+  --ink: #18303f;
+  --muted: #58707c;
+  --line: #d9e4e7;
+  --paper: #ffffff;
+  --page: #f2f7f8;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 16px/1.5 "Segoe UI", Arial, sans-serif; }
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+a { color: var(--teal); }
+:focus-visible { outline: 3px solid #17a9ad; outline-offset: 3px; }
+.wrap { width: min(1120px, calc(100% - 36px)); margin: 0 auto; }
+
+.site-header { padding: 23px 0 64px; color: white; background: linear-gradient(115deg, #0d2638, #17435a); }
+.topline { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; color: white; text-decoration: none; }
+.brand-mark { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 11px; background: #29c5b3; color: #103244; font-size: 1.45rem; font-weight: 900; }
+.brand-name { font-size: 1.32rem; font-weight: 800; letter-spacing: -.04em; }
+.brand-name span { display: block; color: #b5d8de; font-size: .66rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+.corpus-count { color: #c5dce1; font-size: .9rem; }
+.nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 28px; }
+.nav a { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 54px; border: 1px solid #ffffff24; border-radius: 11px; color: #d8e8eb; font-weight: 700; text-decoration: none; }
+.nav a:hover { background: #ffffff14; }
+.nav a[aria-current="page"] { border-color: #25c6b4; background: #25c6b4; color: #0c2c3c; }
+.nav svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+
+main { position: relative; margin-top: -37px !important; padding-bottom: 70px; }
+h1, h2, h3, p { margin-top: 0; }
+h1 { margin-bottom: 6px; font-size: clamp(1.7rem, 3.4vw, 2.35rem); line-height: 1.17; letter-spacing: -.04em; }
+h2 { margin-bottom: 15px; font-size: 1.28rem; letter-spacing: -.02em; }
+h3 { margin-bottom: 9px; font-size: 1.04rem; }
+.muted { color: var(--muted); }
+.eyebrow { display: block; margin-bottom: 11px; color: var(--teal); font-size: .76rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+.search-panel, .panel { margin-bottom: 19px; padding: 27px; border: 1px solid var(--line); border-radius: 15px; background: var(--paper); box-shadow: 0 14px 40px #1026380b; }
+.search-panel { padding: 29px; }
+.intro { margin-bottom: 18px; }
+.intro p { margin-bottom: 0; }
+
+.query-shell { overflow: visible; border: 2px solid #bdd4d8; border-radius: 13px; background: white; }
+.query-shell:focus-within { border-color: #27aeb0; box-shadow: 0 0 0 4px #27aeb021; }
+.query-line { display: flex; align-items: center; min-height: 60px; gap: 10px; padding: 6px; }
+.query-line svg { flex: none; width: 23px; height: 23px; margin-left: 13px; fill: none; stroke: var(--teal); stroke-width: 1.8; }
+.query-line input { flex: 1; min-width: 0; min-height: 46px; padding: 8px 4px; border: 0; outline: none; background: transparent; color: var(--ink); }
+.query-line input::placeholder { color: #69818a; }
+.primary { align-self: stretch; min-width: 108px; padding: 8px 18px; border: 0; border-radius: 9px; background: var(--teal); color: white; font-weight: 800; }
+.primary:hover { background: #076a70; }
+.suggest-list { padding: 7px; border-top: 1px solid var(--line); }
+.suggest-list[hidden] { display: none; }
+.suggest-title { padding: 7px 13px 5px; color: var(--muted); font-size: .76rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.suggest-list button { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 47px; padding: 8px 13px; border: 0; border-radius: 8px; background: transparent; color: var(--ink); text-align: left; }
+.suggest-list button:hover, .suggest-list button:focus-visible { background: var(--teal-light); }
+.suggest-list button .arrow { color: var(--teal); font-size: 1.2rem; }
+.suggest-list button .question { flex: 1; }
+.suggest-list button small { color: var(--muted); font-size: .73rem; font-weight: 700; text-transform: uppercase; }
+.form-bottom { display: flex; align-items: center; gap: 18px; margin-top: 17px; flex-wrap: wrap; }
+.form-bottom label { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: .88rem; font-weight: 700; }
+.form-bottom select, .filters select { min-height: 38px; padding: 7px 11px; border: 1px solid #b9cbd0; border-radius: 8px; background: white; color: var(--ink); font-weight: 700; }
+.models { display: flex; gap: 8px; flex-wrap: wrap; padding: 0; border: 0; }
+.models legend { margin-bottom: 9px; color: var(--muted); font-size: .88rem; font-weight: 700; }
+.models label { display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 8px; background: #f9fcfc; color: var(--ink); }
+.models input { accent-color: var(--teal); }
+
+.message { padding: 13px 16px; border-radius: 9px; background: var(--teal-light); color: #155c60; }
+.error { background: #fff0eb; color: #91422d; }
+.panel-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px 16px; margin-bottom: 14px; }
+.panel-head h2, .panel-head p { margin: 0; }
+.metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.metric { padding: 16px; border: 1px solid var(--line); border-radius: 10px; background: #f8fbfb; }
+.metric strong { display: block; font-size: 1.5rem; font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
+.metric span { color: var(--muted); font-size: .85rem; }
+.metric-set { border-color: #b7dfd8; background: var(--teal-light); }
+.aside { margin: 11px 0 0; color: var(--muted); font-size: .86rem; }
+.result { padding: 16px 0; border-top: 1px solid #e8eff0; }
+.result:first-of-type { border-top: 0; }
+.result p { margin: 7px 0 0; }
+.id { color: var(--muted); font-size: .86rem; font-weight: 700; }
+.tag { display: inline-block; margin-left: 7px; padding: 3px 8px; border-radius: 5px; background: #e6f6ed; color: #176343; font-size: .75rem; }
+.shared { background: #e8f0fb; color: #265b8e; }
+.compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.compare-grid .panel { margin: 0; padding: 19px; }
+.compare-grid .result { font-size: .9rem; }
+.model-name { display: inline-block; padding-left: 11px; border-left: 4px solid var(--teal); }
+.model-name[data-modelo="Jaccard"] { border-color: #8673a0; }
+.model-name[data-modelo="TF-IDF"] { border-color: #4793b0; }
+.model-name[data-modelo="BM25"] { border-color: #d99943; }
+.model-name[data-modelo="Embeddings"] { border-color: #0c9d8d; }
+details { margin-top: 9px; color: var(--muted); font-size: .86rem; }
+summary { width: fit-content; color: var(--teal); font-weight: 700; cursor: pointer; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .94rem; }
+th, td { padding: 12px 11px; border-bottom: 1px solid #e5edef; text-align: left; white-space: nowrap; }
+thead th { background: #f7fafb; color: var(--muted); }
+tbody tr:hover { background: #f3fafa; }
+.number { text-align: right; font-variant-numeric: tabular-nums; }
+.filters { display: flex; align-items: end; gap: 10px; flex-wrap: wrap; margin-bottom: 17px; }
+.filters label { display: block; margin-bottom: 5px; color: var(--muted); font-size: .86rem; font-weight: 700; }
+.filters button { min-height: 39px; padding: 8px 17px; border: 0; border-radius: 8px; background: var(--teal); color: white; font-weight: 700; }
+.facts { display: flex; gap: 12px; flex-wrap: wrap; margin: 0 0 20px; }
+.facts div { padding: 10px 15px; border: 1px solid var(--line); border-radius: 8px; background: #f9fcfc; color: var(--muted); }
+.facts strong { color: var(--ink); }
+
+@media (max-width: 740px) {
+  .site-header { padding-bottom: 55px; }
+  .corpus-count { display: none; }
+  .nav { gap: 4px; }
+  .nav a { min-height: 47px; padding: 7px; font-size: .82rem; }
+  .nav svg { display: none; }
+  .search-panel, .panel { padding: 19px; }
+  .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .suggest-list button small { display: none; }
+}
+@media (max-width: 430px) {
+  .nav a { font-size: .73rem; }
+  .query-line { flex-wrap: wrap; }
+  .query-line input { width: calc(100% - 48px); }
+  .primary { width: 100%; min-height: 44px; }
+  .metric strong { font-size: 1.27rem; }
+}
+/* Composición editorial: navegación lateral y área de búsqueda independiente. */
+@media (min-width: 901px) {
+  .site-header {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 10;
+    width: 246px;
+    padding: 31px 18px;
+    background: #132736;
+  }
+  .site-header .wrap { width: 100%; }
+  .topline { display: block; padding: 0 9px 31px; border-bottom: 1px solid #ffffff20; }
+  .corpus-count { display: block; margin-top: 29px; color: #9fbbc3; line-height: 1.6; font-size: .82rem; }
+  .nav { display: flex; flex-direction: column; gap: 5px; margin: 28px 0 0; }
+  .nav a { justify-content: flex-start; min-height: 48px; border: 0; border-radius: 8px; padding-left: 16px; }
+  .nav a[aria-current="page"] { color: #112a37; background: #a3f0d6; }
+  main.wrap { width: min(1120px, calc(100% - 314px)); margin: 0 34px 0 280px !important; padding: 49px 0 80px; }
+}
+body { background: #f8faf9; color: #20313d; }
+.site-header { background: #132736; }
+.brand-mark { background: #a3f0d6; border-radius: 50%; color: #132736; }
+.brand-name span { letter-spacing: .08em; }
+main { margin-top: 0 !important; }
+.search-panel {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  margin-bottom: 36px;
+}
+.intro { margin-bottom: 24px; }
+.eyebrow { color: #388b72; }
+h1 { font-size: clamp(2.05rem, 4vw, 3.1rem); letter-spacing: -.055em; }
+.query-shell {
+  border: 1px solid #cfdcd8;
+  border-radius: 16px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 13px 35px #19372b0b;
+}
+.query-shell:focus-within { border-color: #4baf91; box-shadow: 0 0 0 4px #9be8ce45; }
+.query-line { min-height: 75px; padding: 9px 10px; }
+.query-line svg { margin-left: 17px; stroke: #367c6b; }
+.query-line input { font-size: 1.08rem; }
+.primary { background: #226a56; border-radius: 9px; }
+.primary:hover { background: #174c3d; }
+.suggest-list { padding: 13px 16px 17px; background: #fbfdfc; }
+.suggest-title { padding: 5px 9px 12px; color: #6a8179; }
+.suggest-list button {
+  display: grid;
+  grid-template-columns: 22px minmax(0,1fr) auto;
+  gap: 12px;
+  min-height: 55px;
+  padding: 11px;
+  border-top: 1px solid #eaf0ed;
+  border-radius: 0;
+}
+.suggest-list button:hover, .suggest-list button:focus-visible { background: #e9f7ee; border-radius: 8px; }
+.suggest-list button .arrow { font-size: 1.06rem; }
+.suggest-list button .question { font-weight: 570; }
+.suggest-list button small { color: #788980; }
+.form-bottom { justify-content: flex-end; }
+.form-bottom label { color: #526b60; }
+.form-bottom select, .filters select { border-color: #cad9d1; }
+.panel { border-color: #e4ece7; box-shadow: 0 5px 22px #19372b08; }
+.metric { background: #f3f8f5; border-color: #dfebe3; }
+.metric-set { background: #e4f4e9; border-color: #c4e1cf; }
+.model-name { border-left-color: #338e74; }
+.result { padding: 21px 0; }
+.result p { line-height: 1.65; }
+.nav a:hover { background: #ffffff12; }
+.nav a[aria-current="page"]:hover { background: #a3f0d6; }
+@media (max-width: 900px) {
+  .site-header { padding: 18px 0 21px; }
+  .topline { justify-content: center; }
+  .nav { margin-top: 18px; }
+  main.wrap { width: min(1120px, calc(100% - 36px)); margin: 30px auto 0 !important; }
+}
+@media (max-width: 520px) {
+  .suggest-list { padding: 7px; }
+  .suggest-list button { grid-template-columns: 20px minmax(0,1fr); }
+  .suggest-list button small { display: none; }
+  .query-line { min-height: 62px; }
+  .query-line input { font-size: 1rem; }
+  h1 { font-size: 2rem; }
+}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <div class="topline">
+        <a class="brand" href="/" aria-label="FiQA, ir a búsqueda">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span class="brand-name">FiQA<span>Financial Search</span></span>
+        </a>
+        <span class="corpus-count">57.638 documentos · 4 modelos</span>
+      </div>
+      <nav class="nav" aria-label="Secciones principales">
+        <a href="/?vista=buscar&amp;q={{ consulta|urlencode }}&amp;caso={{ caso_id|urlencode }}&amp;split={{ split if split != 'todos' else 'test' }}&amp;modelo={{ nombre_modelo|urlencode }}&amp;n={{ limite }}" {% if vista == "buscar" %}aria-current="page"{% endif %}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.7" cy="10.7" r="6.8"/><path d="m16 16 5 5"/></svg>Buscar
+        </a>
+        <a href="/?vista=comparar&amp;q={{ consulta|urlencode }}&amp;caso={{ caso_id|urlencode }}&amp;split={{ split if split != 'todos' else 'test' }}&amp;n={{ limite }}" {% if vista == "comparar" %}aria-current="page"{% endif %}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5v14M10 8v11M16 3v16M22 11v8"/></svg>Comparar modelos
+        </a>
+        <a href="/?vista=evaluacion&amp;split={{ split if vista == 'evaluacion' else 'todos' }}" {% if vista == "evaluacion" %}aria-current="page"{% endif %}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17 9 11l4 3 8-9M3 21h18"/></svg>Evaluación
+        </a>
+      </nav>
+    </div>
+  </header>
+  <main class="wrap">
+    {% if vista != "evaluacion" %}
+      <section class="search-panel" aria-label="Buscador FiQA">
+        <div class="intro">
+          <span class="eyebrow">Información financiera</span>
+          <h1>{% if vista == "buscar" %}Busca en FiQA{% else %}Compara los modelos{% endif %}</h1>
+        </div>
+        <form id="search-form" method="get" action="/">
+          <input type="hidden" name="vista" value="{{ vista }}">
+          <input id="caso" type="hidden" name="caso" value="{{ caso_id }}">
+          <input id="split" type="hidden" name="split" value="{{ split }}">
+          <div class="query-shell">
+            <div class="query-line">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.7" cy="10.7" r="6.8"/><path d="m16 16 5 5"/></svg>
+              <input id="q" name="q" type="search" value="{{ consulta }}" placeholder="Buscar en FiQA" aria-label="Buscar una consulta o escribir una nueva" aria-autocomplete="list" aria-controls="suggest-list" aria-expanded="{% if consulta %}false{% else %}true{% endif %}" autocomplete="off" required>
+              <button class="primary" type="submit">{% if vista == "buscar" %}Buscar{% else %}Comparar{% endif %}</button>
+            </div>
+            <div id="suggest-list" class="suggest-list" aria-label="Consultas sugeridas" {% if consulta %}hidden{% endif %}>
+              <div class="suggest-title">Consultas sugeridas</div>
+              {% for sugerencia in sugerencias %}
+                <button type="button" data-id="{{ sugerencia.id }}" data-split="{{ sugerencia.split }}" data-consulta="{{ sugerencia.texto }}">
+                  <span class="arrow" aria-hidden="true">↗</span>
+                  <span class="question">{{ sugerencia.texto }}</span>
+                  <small>{{ sugerencia.split }}</small>
+                </button>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="form-bottom">
+            {% if vista == "buscar" %}
+              <label for="modelo">Modelo
+                <select id="modelo" name="modelo">
+                  {% for nombre in nombres_modelos %}<option value="{{ nombre }}" {% if nombre == nombre_modelo %}selected{% endif %}>{{ nombre }}</option>{% endfor %}
+                </select>
+              </label>
+            {% endif %}
+            <label for="n">Resultados
+              <select id="n" name="n">
+                {% for cantidad in [5, 10, 20] %}<option value="{{ cantidad }}" {% if cantidad == limite %}selected{% endif %}>{{ cantidad }}</option>{% endfor %}
+              </select>
+            </label>
+          </div>
+          {% if vista == "comparar" %}
+            <input type="hidden" name="seleccion_aplicada" value="true">
+            <fieldset class="models">
+              <legend>Modelos que deseas comparar</legend>
+              {% for nombre in nombres_modelos %}
+                <label><input type="checkbox" name="modelos" value="{{ nombre }}" {% if nombre in modelos_seleccionados %}checked{% endif %}>{{ nombre }}</label>
+              {% endfor %}
+            </fieldset>
+          {% endif %}
+        </form>
+      </section>
+      {% if error_modelos %}<p class="message error" role="alert">Elige al menos dos modelos para compararlos.</p>{% endif %}
+      {% if consulta and not error_modelos %}
+        <section class="panel" aria-labelledby="metrics-title">
+          <div class="panel-head"><h2 id="metrics-title">Calidad de los resultados</h2>{% if metricas_caso %}<p class="muted">Consulta {{ caso_id }} · {{ split }} · {{ relevantes|length }} relevante(s) juzgado(s)</p>{% endif %}</div>
+          {% if metricas_caso %}
+            {% if vista == "buscar" %}
+              {% set fila = metricas_caso[nombre_modelo] %}
+              <div class="metrics"><div class="metric"><strong>{{ "%.3f"|format(fila.precision_10) }}</strong><span>Precision@10</span></div><div class="metric"><strong>{{ "%.3f"|format(fila.recall_10) }}</strong><span>Recall@10</span></div><div class="metric"><strong>{{ "%.3f"|format(fila.ndcg_10) }}</strong><span>NDCG@10</span></div><div class="metric metric-set"><strong>{{ "%.3f"|format(map_conjunto[nombre_modelo]) }}</strong><span>MAP de {{ split }} · promedio</span></div></div>
+              
+            {% else %}
+              <div class="table-wrap"><table><thead><tr><th>Modelo</th><th class="number">Precision@10</th><th class="number">Recall@10</th><th class="number">NDCG@10</th><th class="number">MAP de {{ split }}</th></tr></thead><tbody>{% for nombre in modelos_seleccionados %}{% set fila = metricas_caso[nombre] %}<tr><th scope="row"><span class="model-name" data-modelo="{{ nombre }}">{{ nombre }}</span></th><td class="number">{{ "%.3f"|format(fila.precision_10) }}</td><td class="number">{{ "%.3f"|format(fila.recall_10) }}</td><td class="number">{{ "%.3f"|format(fila.ndcg_10) }}</td><td class="number">{{ "%.3f"|format(map_conjunto[nombre]) }}</td></tr>{% endfor %}</tbody></table></div>
+              
+            {% endif %}
+            <details><summary>Cómo interpretar estas cifras</summary><p>Precision@10, Recall@10 y NDCG@10 usan los primeros diez documentos aunque muestres 5 o 20. Si un relevante aparece después del puesto 10, Precision@10 y Recall@10 pueden ser cero. MAP se calculó con el ranking completo de todas las consultas del conjunto, por lo que puede ser positivo aunque esta consulta tenga métricas @10 iguales a cero.</p></details>
+          {% else %}<p class="message">Métricas no disponibles para esta consulta: no tiene juicios de relevancia (qrels). Puedes revisar sus documentos recuperados.</p>{% endif %}
+        </section>
+        {% if vista == "buscar" %}
+          <section class="panel" aria-labelledby="ranking-title"><div class="panel-head"><h2 id="ranking-title"><span class="model-name" data-modelo="{{ nombre_modelo }}">Resultados de {{ nombre_modelo }}</span></h2><span class="muted">Mostrando hasta {{ limite }} documentos</span></div>
+            {% if resultados %}{% for resultado in resultados %}<article class="result"><div class="id">#{{ loop.index }} · Documento {{ resultado.id }}{% if resultado.id in relevantes %}<span class="tag">Relevante según qrels</span>{% endif %}</div><p>{{ resultado.texto[:480] }}{% if resultado.texto|length > 480 %}…{% endif %}</p><details><summary>Ver puntaje</summary>{{ "%.4f"|format(resultado.puntaje) }} · Puntaje de ordenación de {{ nombre_modelo }}.</details></article>{% endfor %}{% else %}<p class="message">No se encontraron documentos con coincidencia para esta consulta.</p>{% endif %}
+          </section>
+        {% else %}
+          <section aria-labelledby="ranking-title"><h2 id="ranking-title">Resultados por modelo</h2><div class="compare-grid">{% for nombre, filas in comparacion.items() %}<div class="panel"><h3><span class="model-name" data-modelo="{{ nombre }}">{{ nombre }}</span></h3>{% if filas %}{% for resultado in filas %}<article class="result"><div class="id">#{{ loop.index }} · Documento {{ resultado.id }}{% if resultado.id in relevantes %}<span class="tag">Relevante</span>{% endif %}{% if coincidencias[resultado.id] > 1 %}<span class="tag shared">En {{ coincidencias[resultado.id] }} modelos</span>{% endif %}</div><p>{{ resultado.texto[:260] }}{% if resultado.texto|length > 260 %}…{% endif %}</p><details><summary>Ver puntaje</summary>{{ "%.4f"|format(resultado.puntaje) }} · Puntaje de {{ nombre }}.</details></article>{% endfor %}{% else %}<p class="muted">Sin coincidencias.</p>{% endif %}</div>{% endfor %}</div></section>
+        {% endif %}
+      {% endif %}
+    {% else %}
+      <div class="intro"><h1>Evaluación de los modelos</h1><p class="muted">Compara los resultados sobre consultas con juicios de relevancia.</p></div>
+      <section class="panel">
+        <form class="filters" method="get" action="/"><input type="hidden" name="vista" value="evaluacion"><div><label for="split-evaluacion">Consultas evaluadas</label><select id="split-evaluacion" name="split"><option value="todos" {% if split == "todos" %}selected{% endif %}>Todos los conjuntos</option>{% for conjunto in ["train","dev","test"] %}<option value="{{ conjunto }}" {% if conjunto == split %}selected{% endif %}>{{ conjunto|upper }}</option>{% endfor %}</select></div><button type="submit">Aplicar</button></form>
+        <div class="facts"><div><strong>{{ "{:,}".format(evaluacion.cantidad_consultas).replace(",", ".") }}</strong> consultas</div><div><strong>{{ "{:,}".format(metadatos.documentos).replace(",", ".") }}</strong> documentos</div><div><strong>4</strong> modelos</div></div>
+        <h2>{% if split == "todos" %}Promedio de train, dev y test{% else %}Promedio de {{ split }}{% endif %}</h2>
+        <div class="table-wrap"><table><thead><tr><th>Modelo</th><th class="number">Precision@10</th><th class="number">Recall@10</th><th class="number">MAP</th><th class="number">NDCG@10</th></tr></thead><tbody>{% for fila in evaluacion.resumen %}<tr><th scope="row"><span class="model-name" data-modelo="{{ fila.modelo }}">{{ fila.modelo }}</span></th><td class="number">{{ "%.4f"|format(fila.precision_10) }}</td><td class="number">{{ "%.4f"|format(fila.recall_10) }}</td><td class="number">{{ "%.4f"|format(fila.map) }}</td><td class="number">{{ "%.4f"|format(fila.ndcg_10) }}</td></tr>{% endfor %}</tbody></table></div>
+        <p class="aside">{% if split == "todos" %}Se promediaron las 6.648 consultas de los tres conjuntos; cada consulta tiene el mismo peso.{% else %}Se promediaron las {{ evaluacion.cantidad_consultas }} consultas de {{ split }}.{% endif %}</p>
+        <details><summary>Qué significa cada medida</summary><p>Precision@10: proporción de relevantes entre los diez primeros. Recall@10: proporción de relevantes conocidos recuperados entre los diez primeros. MAP: promedio de la precisión media de cada consulta a lo largo del ranking completo. NDCG@10: calidad del orden dentro de los diez primeros.</p></details>
+      </section>
+      <section class="panel"><h2>Comparación por tipo de consulta</h2><p class="muted">MAP según la coincidencia de términos entre la consulta y los documentos juzgados relevantes.</p><div class="table-wrap"><table><thead><tr><th>Coincidencia</th><th class="number">Consultas</th>{% for nombre in nombres_modelos %}<th class="number">{{ nombre }}</th>{% endfor %}</tr></thead><tbody>{% for fila in tipos_tabla %}<tr><th scope="row">{{ fila.tipo }}</th><td class="number">{{ fila.consultas }}</td>{% for nombre in nombres_modelos %}<td class="number">{{ "%.4f"|format(fila.modelos[nombre]) }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div><details><summary>Cómo se agruparon</summary><p>Una consulta tiene baja coincidencia cuando ningún documento juzgado relevante contiene al menos la mitad de sus términos. Esta clasificación solo ayuda a analizar los resultados; no modifica el ranking.</p></details></section>
+    {% endif %}
+  </main>
+  <script>
+    const campo = document.getElementById("q");
+    const idCaso = document.getElementById("caso");
+    const splitCaso = document.getElementById("split");
+    const lista = document.getElementById("suggest-list");
+    const formulario = document.getElementById("search-form");
+    let temporizador;
+    let controlador;
+
+    function mostrarLista(visible) {
+      lista.hidden = !visible;
+      campo.setAttribute("aria-expanded", String(visible));
+    }
+
+    function elegir(item) {
+      campo.value = item.texto;
+      idCaso.value = item.id;
+      splitCaso.value = item.split;
+      mostrarLista(false);
+      formulario.requestSubmit();
+    }
+
+    function agregarSugerencia(item) {
+      const boton = document.createElement("button");
+      boton.type = "button";
+      const flecha = document.createElement("span");
+      flecha.className = "arrow";
+      flecha.setAttribute("aria-hidden", "true");
+      flecha.textContent = "↗";
+      const pregunta = document.createElement("span");
+      pregunta.className = "question";
+      pregunta.textContent = item.texto;
+      const conjunto = document.createElement("small");
+      conjunto.textContent = item.split;
+      boton.append(flecha, pregunta, conjunto);
+      boton.addEventListener("click", function () { elegir(item); });
+      lista.appendChild(boton);
+    }
+
+    function cargarSugerencias() {
+      clearTimeout(temporizador);
+      if (controlador) controlador.abort();
+      const termino = campo.value.trim();
+      if (termino.length === 1) {
+        mostrarLista(false);
+        return;
+      }
+      temporizador = setTimeout(function () {
+        controlador = new AbortController();
+        fetch("/sugerencias?q=" + encodeURIComponent(termino), {signal: controlador.signal})
+          .then(function (respuesta) { return respuesta.json(); })
+          .then(function (filas) {
+            if (campo.value.trim() !== termino) return;
+            lista.replaceChildren();
+            const titulo = document.createElement("div");
+            titulo.className = "suggest-title";
+            titulo.textContent = termino ? "Consultas relacionadas" : "Consultas sugeridas";
+            lista.appendChild(titulo);
+            filas.forEach(agregarSugerencia);
+            mostrarLista(filas.length > 0);
+          })
+          .catch(function (error) {
+            if (error.name !== "AbortError") mostrarLista(false);
+          });
+      }, termino ? 160 : 0);
+    }
+
+    if (campo) {
+      lista.querySelectorAll("button[data-id]").forEach(function (boton) {
+        boton.addEventListener("click", function () {
+          elegir({id: boton.dataset.id, split: boton.dataset.split, texto: boton.dataset.consulta});
+        });
+      });
+      campo.addEventListener("focus", cargarSugerencias);
+      campo.addEventListener("input", function () {
+        idCaso.value = "";
+        splitCaso.value = "test";
+        cargarSugerencias();
+      });
+      campo.addEventListener("keydown", function (evento) {
+        if (evento.key === "Escape") mostrarLista(false);
+        if (evento.key === "ArrowDown" && !lista.hidden) {
+          const primera = lista.querySelector("button");
+          if (primera) { evento.preventDefault(); primera.focus(); }
+        }
+      });
+      document.addEventListener("click", function (evento) {
+        if (!lista.contains(evento.target) && evento.target !== campo) mostrarLista(false);
+      });
+    }
+  </script>
+</body>
+</html>
