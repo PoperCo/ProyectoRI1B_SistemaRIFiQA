@@ -98,19 +98,16 @@ Esta carpeta permite **consultar y evaluar los artefactos ya construidos**. Para
 
 La aplicación solo puede calcular métricas de relevancia para consultas con qrels. Los 38 documentos sin contenido permanecen en el total de documentos y en los juicios de relevancia, aunque no pueden recuperarse por texto o embeddings. Las métricas presentadas describen el sistema completo; no aíslan experimentalmente el efecto de cada decisión de preprocesamiento.
 
-## Publicación desde GitHub
+## Repositorio y actualizaciones
 
-Para alojar esta versión ejecutable, se debe subir el **contenido** de esta carpeta como raíz del repositorio, conservando `datos/`, `modelo/` y `templates/`. No se deben incluir `.vercel/`, `__pycache__/`, `.venv/` ni archivos `.pyc`. Los fragmentos mayores pesan cerca de 64 MiB: deben subirse con Git o GitHub Desktop, porque el formulario web de GitHub admite menos tamaño por archivo. No es necesario subir el ZIP del proyecto.
+Esta versión ejecutable se publicó en [GitHub](https://github.com/PoperCo/ProyectoRI1B_SistemaRIFiQA) con `datos/`, `modelo/` y `templates/` en la raíz. No se incluyen `.vercel/`, `__pycache__/`, `.venv/` ni archivos `.pyc`. Los fragmentos mayores pesan cerca de 64 MiB y se subieron mediante Git; no es necesario subir el ZIP del proyecto.
 
-Después de crear un repositorio vacío en GitHub, se puede publicar desde PowerShell con los siguientes comandos, sustituyendo la dirección por la del repositorio creado:
+Para enviar cambios posteriores desde la carpeta del repositorio, se utilizan:
 
 ```powershell
-git init
 git add .
-git commit -m "Publicar sistema de recuperación FiQA"
-git branch -M main
-git remote add origin https://github.com/USUARIO/REPOSITORIO.git
-git push -u origin main
+git commit -m "Actualizar sistema FiQA"
+git push
 ```
 
 El despliegue actual de Vercel se hizo desde la carpeta local. Subir el repositorio a GitHub no lo vincula automáticamente al proyecto de Vercel; esa conexión se realiza aparte en la configuración de Vercel si se desean despliegues automáticos al actualizar GitHub.
