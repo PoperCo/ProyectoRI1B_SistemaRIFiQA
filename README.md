@@ -10,7 +10,7 @@ Proyecto de primer bimestre de Recuperación de Información.
 
 Esta aplicación busca respuestas en los 57.638 documentos del corpus financiero FiQA de BeIR. Permite consultar cuatro modelos de recuperación —Jaccard, TF-IDF, BM25 y embeddings—, comparar sus rankings y examinar métricas calculadas con los juicios de relevancia (qrels) de `train`, `dev` y `test`.
 
-El repositorio de esta carpeta corresponde a la **versión de ejecución**. Incluye los índices y el modelo ya preparados; por ello, la página se inicia sin volver a procesar el corpus ni a generar embeddings. Los archivos Parquet y TSV originales y los programas de preparación se conservan en la carpeta fuente del proyecto, separada de esta versión de despliegue.
+El repositorio incluye la **versión de ejecución** y los scripts para reconstruir sus artefactos. La página utiliza índices y modelo ya preparados; por ello, iniciarla no vuelve a procesar el corpus ni a generar embeddings. Los archivos Parquet y TSV originales se pueden descargar por separado con `descargar_datos.py`.
 
 ## Funcionalidades
 
@@ -62,9 +62,12 @@ Precision@10, Recall@10 y NDCG@10 consideran los diez primeros resultados, indep
 | `semantico.py` | Carga BGE y FAISS y ejecuta la búsqueda semántica. |
 | `texto.py` | Normalización, tokenización y lectura del corpus preparado. |
 | `configuracion.py` | Parámetros y revisiones usados por los índices. |
+| `descargar_datos.py` | Descarga los Parquet y TSV de las revisiones fijadas de FiQA. |
+| `preparar_datos.py` | Lee el corpus completo, prepara los índices y ejecuta la evaluación. |
+| `evaluacion.py` | Calcula métricas por consulta y promedios de `train`, `dev` y `test`. |
 | `datos/` | Corpus preparado, índices, relación fragmento-documento, metadatos y métricas. |
 | `modelo/` | Modelo ONNX y tokenizador de BGE. |
-| `requirements.txt`, `.python-version` | Dependencias de ejecución y versión de Python. |
+| `requirements.txt`, `requirements-preparacion.txt`, `.python-version` | Dependencias de ejecución y preparación y versión de Python. |
 
 Algunos artefactos se guardaron comprimidos o divididos en partes para el despliegue. `semantico.py` reúne las partes del índice FAISS y del modelo ONNX al iniciar el servicio; no vuelve a calcular sus vectores. Debe conservarse la estructura de carpetas y todas las partes de cada archivo.
 
@@ -79,7 +82,19 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m uvicorn app:app --host 127.0.0.1 --port 8000
 ```
 
-Después, abrir <http://127.0.0.1:8000/>. El servicio carga el modelo y los índices al iniciarse; la primera apertura puede tardar más que las consultas posteriores. Para detenerlo, pulsar `Ctrl+C`. La ejecución de consultas utiliza CPU y no requiere la GPU empleada durante la preparación.
+Después, abrir <http://127.0.0.1:8000/>. El servicio carga el modelo y los índices al iniciarse; la primera apertura puede tardar más que las consultas posteriores. Para detenerlo, pulsar `Ctrl+C`. La ejecución de consultas no requiere GPU; la preparación puede aprovechar una si ONNX Runtime dispone de un proveedor compatible.
+
+### Reconstrucción desde los datos originales
+
+Esta etapa es opcional si solo se quiere ejecutar la aplicación con los índices incluidos. Para reconstruirlos desde cero, desde la raíz del repositorio y con el entorno virtual activado:
+
+```powershell
+python -m pip install -r requirements-preparacion.txt
+python descargar_datos.py
+python preparar_datos.py --input-dir datos/fuente
+```
+
+La preparación lee los 57.638 documentos y los qrels completos, crea el índice invertido y los embeddings, evalúa los cuatro modelos y guarda los resultados. Además de los archivos de trabajo, produce `corpus.jsonl.gz`, `indice_clasico.json.gz` y `metricas.json.gz`, que son los formatos que lee esta versión de FastAPI. La generación de embeddings y la evaluación completa pueden tardar varias horas; los archivos ya incluidos permiten usar la web sin repetirla. Los archivos grandes generados localmente se ignoran en Git para evitar subir duplicados por accidente.
 
 Rutas disponibles:
 
@@ -94,7 +109,7 @@ Por ejemplo, se puede abrir `http://127.0.0.1:8000/?vista=buscar&q=retirement&mo
 
 ## Alcance y reproducibilidad
 
-Esta carpeta permite **consultar y evaluar los artefactos ya construidos**. Para reconstruirlos desde los Parquet y TSV se necesita la carpeta fuente del proyecto, que contiene `preparar_datos.py`, `evaluacion.py`, los requisitos de preparación y los archivos de origen. La configuración del modelo y del preprocesamiento se registra en los metadatos para evitar combinar índices incompatibles.
+Esta carpeta permite **consultar los artefactos ya construidos** y **reconstruirlos desde los Parquet y TSV** mediante los scripts incluidos. La configuración del modelo y del preprocesamiento se registra en los metadatos para evitar combinar índices incompatibles.
 
 La aplicación solo puede calcular métricas de relevancia para consultas con qrels. Los 38 documentos sin contenido permanecen en el total de documentos y en los juicios de relevancia, aunque no pueden recuperarse por texto o embeddings. Las métricas presentadas describen el sistema completo; no aíslan experimentalmente el efecto de cada decisión de preprocesamiento.
 

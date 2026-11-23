@@ -3,3 +3,15 @@
 __pycache__/
 *.pyc
 .venv/
+/datos/fuente/
+/datos/corpus.jsonl
+/datos/indice_clasico.json
+/datos/indice_faiss.index
+/datos/embeddings.npy
+/datos/embeddings.parcial.npy
+/datos/avance_embeddings.json
+/datos/metricas.json
+/datos/consultas.json
+/datos/consultas_*.json
+/modelo/*.staging-*/
+/modelo/**/model.onnx
